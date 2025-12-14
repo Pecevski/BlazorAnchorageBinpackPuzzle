@@ -3,6 +3,7 @@
 using BlazorAnchorageBinpackPuzzle.Models;
 using BlazorAnchorageBinpackPuzzle.Services.Interfaces;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 public class FleetService : IFleetService
 {
@@ -21,6 +22,10 @@ public class FleetService : IFleetService
             return response ?? throw new InvalidOperationException("Empty response from fleet API");
         }
         catch (HttpRequestException ex)
+        {
+            throw new InvalidOperationException("Failed to fetch fleet data from ESA API", ex);
+        }
+        catch (JsonException ex)
         {
             throw new InvalidOperationException("Failed to fetch fleet data from ESA API", ex);
         }

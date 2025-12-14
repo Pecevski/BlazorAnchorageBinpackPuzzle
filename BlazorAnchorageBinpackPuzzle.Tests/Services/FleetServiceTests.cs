@@ -3,6 +3,7 @@ namespace BlazorAnchorageBinpackPuzzle.Tests.Services;
 using BlazorAnchorageBinpackPuzzle.Models;
 using BlazorAnchorageBinpackPuzzle.Services;
 using Moq;
+using Moq.Protected;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
