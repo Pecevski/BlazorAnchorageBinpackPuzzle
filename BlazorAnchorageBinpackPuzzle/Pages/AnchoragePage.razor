@@ -1,0 +1,170 @@
+﻿@page "/"
+@using BlazorAnchorageBinpackPuzzle.Models
+@using BlazorAnchorageBinpackPuzzle.Services
+@using BlazorAnchorageBinpackPuzzle.Services.Interfaces
+@using BlazorAnchorageBinpackPuzzle.State
+@using BlazorAnchorageBinpackPuzzle.Components
+
+<div class="container-fluid mt-5">
+    <h1 class="text-center mb-4">⚓ Anchorage Bin-Packing Puzzle</h1>
+
+    @if (_isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading fleet data...</p>
+        </div>
+    }
+    else if (_error != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Error:</strong> @_error
+            <button class="btn btn-sm btn-outline-danger ms-2" @onclick="Initialize">Try Again</button>
+        </div>
+    }
+    else if (_state.AnchorageSize == null)
+    {
+        <div class="text-center">
+            <button class="btn btn-lg btn-primary" @onclick="Initialize">Start New Puzzle</button>
+        </div>
+    }
+    else if (_isWon)
+    {
+        <div class="alert alert-success text-center" role="alert">
+            <h2>You did it! 🥳</h2>
+            <p class="mb-3">All vessels have been successfully placed in the anchorage.</p>
+            <button class="btn btn-lg btn-success" @onclick="Initialize">Try again!</button>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Anchorage (@_state.AnchorageSize.Width × @_state.AnchorageSize.Height)</h5>
+                    </div>
+                    <div class="card-body">
+                        <AnchorageGrid
+                            AnchorageSize="_state.AnchorageSize"
+                            PlacedVessels="_state.PlacedVessels"
+                            VesselTypes="_state.VesselTypes"
+                            OnVesselPlaced="HandleVesselPlaced"
+                            OnVesselRemoved="HandleVesselRemoved" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="status-panel card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="status-item">
+                            <span class="status-label">Total Vessels:</span>
+                            <span class="status-value">@_planner.GetTotalVesselCount(_state.VesselTypes)</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Vessels Remaining:</span>
+                            <span class="status-value text-warning">@_planner.GetRemainingVesselCount(_state.VesselTypes)</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Placed:</span>
+                            <span class="status-value text-success">@_state.PlacedVessels.Count</span>
+                        </div>
+                    </div>
+                </div>
+
+                <VesselPalette
+                    VesselTypes="_state.VesselTypes"
+                    OnRotate="HandleRotate" />
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Inject]
+    private IFleetService FleetService { get; set; } = default!;
+
+    [Inject]
+    private IAnchoragePlanner _planner { get; set; } = default!;
+
+    private readonly AnchorageState _state = new();
+    private bool _isLoading;
+    private bool _isWon;
+    private string? _error;
+    private Dictionary<int, bool> _rotationStates = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Initialize();
+    }
+
+    private async Task Initialize()
+    {
+        _isLoading = true;
+        _isWon = false;
+        _error = null;
+        _rotationStates.Clear();
+
+        try
+        {
+            var response = await FleetService.GetRandomFleetAsync();
+            _state.Initialize(response);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task HandleVesselPlaced((int X, int Y, string ShipDesignation, bool IsRotated) args)
+    {
+        var vesselType = _state.VesselTypes.FirstOrDefault(vt => vt.ShipDesignation == args.ShipDesignation);
+        if (vesselType == null || vesselType.RemainingCount == 0)
+            return;
+
+        var dimensions = args.IsRotated
+            ? vesselType.SingleShipDimensions.Rotate()
+            : vesselType.SingleShipDimensions;
+
+        if (!_planner.CanPlaceVessel(args.X, args.Y, dimensions, _state.AnchorageSize!, _state.PlacedVessels))
+            return;
+
+        var vessel = new PlacedVessel(
+            Id: Guid.NewGuid().ToString(),
+            ShipDesignation: args.ShipDesignation,
+            X: args.X,
+            Y: args.Y,
+            Dimensions: dimensions,
+            IsRotated: args.IsRotated);
+
+        _state.PlaceVessel(vessel, vesselType);
+        _isWon = _planner.AllVesselsPlaced(_state.VesselTypes, _state.PlacedVessels);
+    }
+
+    private async Task HandleVesselRemoved(PlacedVessel vessel)
+    {
+        var vesselType = _state.VesselTypes.FirstOrDefault(vt => vt.ShipDesignation == vessel.ShipDesignation);
+        if (vesselType != null)
+        {
+            _state.RemoveVessel(vessel, vesselType);
+            _isWon = false;
+        }
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleRotate((int Index, bool IsRotated) args)
+    {
+        _rotationStates[args.Index] = args.IsRotated;
+        await Task.CompletedTask;
+    }
+}

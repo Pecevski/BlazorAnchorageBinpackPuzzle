@@ -1,0 +1,56 @@
+@using BlazorAnchorageBinpackPuzzle.Models
+@inject IJSRuntime JS
+
+<div class="vessel-item @(IsRotated ? "rotated" : "")"
+     draggable="true"
+     @ondragstart="HandleDragStart"
+     @ondblclick="HandleDoubleClick"
+     style="width: @(DisplayDimensions.Width * 40)px; height: @(DisplayDimensions.Height * 40)px;"
+     title="Double-click to rotate">
+    <div class="vessel-content">
+        <div class="vessel-label">@VesselType.ShipDesignation</div>
+        <div class="vessel-dims">@DisplayDimensions.Width × @DisplayDimensions.Height</div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public required VesselType VesselType { get; set; }
+
+    [Parameter]
+    public required int VesselIndex { get; set; }
+
+    [Parameter]
+    public required EventCallback<(int Index, bool IsRotated)> OnRotate { get; set; }
+
+    [Parameter]
+    public bool IsRotated { get; set; }
+
+    private VesselDimensions DisplayDimensions => IsRotated
+        ? VesselType.SingleShipDimensions.Rotate()
+        : VesselType.SingleShipDimensions;
+
+    private async Task HandleDragStart(DragEventArgs e)
+    {
+        try
+        {
+            var dragData = new Dictionary<string, string>
+            {
+                { "vessel-type", VesselType.ShipDesignation },
+                { "vessel-index", VesselIndex.ToString() },
+                { "is-rotated", IsRotated.ToString() }
+            };
+            
+            await JS.InvokeVoidAsync("dragDropInterop.setDragData", e.DataTransfer, dragData);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Drag start error: {ex.Message}");
+        }
+    }
+
+    private async Task HandleDoubleClick()
+    {
+        await OnRotate.InvokeAsync((VesselIndex, !IsRotated));
+    }
+}

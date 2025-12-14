@@ -1,0 +1,55 @@
+@using BlazorAnchorageBinpackPuzzle.Models
+
+<div class="vessel-palette card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Available Vessels</h5>
+    </div>
+    <div class="card-body">
+        @if (VesselTypes == null || !VesselTypes.Any())
+        {
+            <p class="text-muted">No vessels available</p>
+        }
+        else
+        {
+            @foreach (var (vesselType, index) in VesselTypes.Select((v, i) => (v, i)))
+            {
+                <div class="vessel-group mb-3">
+                    <div class="vessel-group-header">
+                        <strong>@vesselType.ShipDesignation</strong>
+                        <span class="badge bg-secondary">@vesselType.RemainingCount remaining</span>
+                    </div>
+                    <div class="vessel-list">
+                        @for (int i = 0; i < vesselType.RemainingCount; i++)
+                        {
+                            <VesselItem
+                                VesselType="vesselType"
+                                VesselIndex="index"
+                                IsRotated="IsVesselRotated(index)"
+                                OnRotate="HandleRotate" />
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public required IEnumerable<VesselType> VesselTypes { get; set; }
+
+    [Parameter]
+    public required EventCallback<(int Index, bool IsRotated)> OnRotate { get; set; }
+
+    private Dictionary<int, bool> _rotationStates = new();
+
+    private bool IsVesselRotated(int vesselTypeIndex) =>
+        _rotationStates.TryGetValue(vesselTypeIndex, out var rotated) && rotated;
+
+    private async Task HandleRotate((int Index, bool IsRotated) args)
+    {
+        _rotationStates[args.Index] = args.IsRotated;
+        await OnRotate.InvokeAsync(args);
+        StateHasChanged();
+    }
+}

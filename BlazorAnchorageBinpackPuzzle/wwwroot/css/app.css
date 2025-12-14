@@ -112,3 +112,186 @@ code {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+@import url('bootstrap.min.css');
+
+:root {
+    --vessel-size: 40px;
+    --grid-color: #dee2e6;
+    --vessel-bg: #0d6efd;
+    --vessel-text: white;
+    --placed-bg: #198754;
+    --placed-text: white;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.anchorage-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.anchorage-grid {
+    display: grid;
+    gap: 1px;
+    background-color: var(--grid-color);
+    padding: 1px;
+    border: 3px solid #495057;
+    position: relative;
+}
+
+.grid-cell {
+    background-color: white;
+    min-width: var(--vessel-size);
+    min-height: var(--vessel-size);
+    border: 1px solid var(--grid-color);
+}
+
+.placed-vessel {
+    background: linear-gradient(135deg, var(--placed-bg) 0%, #157347 100%);
+    color: var(--placed-text);
+    border: 2px solid #0f5132;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    padding: 4px;
+}
+
+.placed-vessel:hover {
+    opacity: 0.8;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.placed-vessel-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.vessel-small-dims {
+    font-size: 10px;
+    opacity: 0.9;
+}
+
+.vessel-item {
+    background: linear-gradient(135deg, var(--vessel-bg) 0%, #0b5ed7 100%);
+    color: var(--vessel-text);
+    border: 2px solid #0a58ca;
+    border-radius: 4px;
+    padding: 8px;
+    margin: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: move;
+    user-select: none;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-size: 11px;
+}
+
+.vessel-item:hover {
+    opacity: 0.9;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+    transform: translateY(-2px);
+}
+
+.vessel-item.rotated {
+    background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+    border-color: #4c2d8a;
+}
+
+.vessel-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.vessel-label {
+    font-weight: bold;
+    font-size: 10px;
+}
+
+.vessel-dims {
+    font-size: 9px;
+    opacity: 0.95;
+}
+
+.vessel-palette {
+    background-color: white;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.vessel-group {
+    padding: 10px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.vessel-group:last-child {
+    border-bottom: none;
+}
+
+.vessel-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.vessel-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.status-panel {
+    background-color: white;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 14px;
+}
+
+.status-item:last-child {
+    border-bottom: none;
+}
+
+.status-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.status-value {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .anchorage-grid {
+        grid-template-columns: repeat(auto-fit, var(--vessel-size)) !important;
+    }
+
+    .vessel-item {
+        font-size: 9px;
+        width: 50px;
+        height: 50px;
+    }
+}
