@@ -18,7 +18,7 @@ public class FleetService : IFleetService
     {
         try
         {
-            var response = await _httpClient.GetFromJsonAsync<FleetResponse>("api/fleets/random");
+            var response = await _httpClient.GetFromJsonAsync<FleetResponse>("fleets/random");
             return response ?? throw new InvalidOperationException("Empty response from fleet API");
         }
         catch (HttpRequestException ex)
