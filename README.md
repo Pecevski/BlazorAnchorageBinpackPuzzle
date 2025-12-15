@@ -11,47 +11,10 @@ This application retrieves random fleet configurations from the ESA API and pres
 - **Dynamic Fleet Loading**: Retrieves anchorage dimensions and vessel configurations from `https://esa.instech.no/api/fleets/random`
 - **Interactive Drag & Drop**: Intuitive vessel placement with real-time validation
 - **Collision Detection**: Prevents vessel overlaps and out-of-bounds placement
-- **90° Rotation**: Double-click vessels to rotate (width/height swapped)
+- **90Â° Rotation**: Double-click vessels to rotate (width/height swapped)
 - **Live Status Tracking**: Displays remaining vessel counts and progress
 - **Win Detection**: Congratulations screen when all vessels are placed
 - **Clean Architecture**: Separation of concerns across services, components, and domain logic
-
-## Architecture
-
-### Project Structure
-
-BlazorAnchorageBinpackPuzzle/
-??? Models/
-?   ??? AnchorageSize.cs            # Grid dimensions record
-?   ??? VesselDimensions.cs         # Vessel size record with rotation
-?   ??? VesselType.cs               # Fleet item definition
-?   ??? PlacedVessel.cs             # Positioned vessel instance
-?   ??? FleetResponse.cs            # API response model
-??? Services/
-?   ??? IFleetService.cs            # API contract
-?   ??? FleetService.cs             # HTTP client implementation
-?   ??? AnchoragePlanner.cs         # Pure domain logic
-??? State/
-?   ??? AnchorageState.cs           # Session state management
-??? Components/
-?   ??? AnchorageGrid.razor         # Grid rendering & drop zone
-?   ??? VesselPalette.razor         # Available vessels list
-?   ??? VesselItem.razor            # Draggable vessel component
-??? Pages/
-?   ??? AnchoragePage.razor         # Main puzzle page
-??? wwwroot/
-?   ??? css/
-?       ??? app.css                 # Styling (Bootstrap + custom)
-??? Program.cs                      # DI configuration
-
-
-### Design Patterns
-
-1. **Service Layer**: `IFleetService` provides typed access to the ESA API
-2. **Domain Logic**: `AnchoragePlanner` contains pure, stateless validation functions
-3. **State Management**: `AnchorageState` encapsulates session data
-4. **Dependency Injection**: All services registered in `Program.cs`
-5. **Component Composition**: Small, focused Razor components with single responsibilities
 
 ## Getting Started
 
@@ -69,14 +32,14 @@ Update the HttpClient base address in `Program.cs` if the ESA API URL changes:
 
 dotnet run
 
-Navigate to `https://localhost:7000` (or your configured port).
+Navigate to `https://localhost:5237` (or your configured port).
 
 ## Usage
 
 1. **Start**: Click "Start New Puzzle" to load a random fleet
 2. **View**: Examine the anchorage grid and available vessels
 3. **Drag**: Drag vessels from the palette into the grid
-4. **Rotate**: Double-click a vessel to rotate it 90°
+4. **Rotate**: Double-click a vessel to rotate it 90Â°
 5. **Remove**: Click a placed vessel to unplace it
 6. **Win**: Place all vessels to unlock the success state
 
@@ -120,7 +83,7 @@ The `AnchoragePlanner` service validates:
 
 1. **Boundary Check**: Vessel fits within anchorage dimensions
 2. **Collision Detection**: No overlap with existing vessels (AABB algorithm)
-3. **Rotation Support**: Dimensions swapped on 90° rotation
+3. **Rotation Support**: Dimensions swapped on 90Â° rotation
 4. **Win Condition**: All vessels placed (remaining count = 0)
 
 ### Collision Detection
@@ -145,9 +108,9 @@ Uses Axis-Aligned Bounding Box (AABB) algorithm:
 
 ## Security & Assumptions
 
-- CORS and authentication assumed to be handled by the ESA API infrastructure
+- CORS and authentication assumed to be handled by the ESA API infrastructure - But unfortunatelly it was not and it is causing issue
 - No persistent storage; state resets on page reload
-- Client-side validation only; server-side validation should be implemented for production
+- Client-side validation only;
 
 ## Future Enhancements
 
@@ -171,14 +134,4 @@ Uses Axis-Aligned Bounding Box (AABB) algorithm:
 ### Testing Strategy
 
 - Unit tests for `AnchoragePlanner` (collision detection, boundary checks)
-- Component tests for drag-drop behavior
-- Integration tests for API calls
-- Manual E2E testing for UI/UX flows
-
-## License
-
-[Insert License]
-
-## Support
-
-For issues, contact the development team or submit to the project repository.
+- Unit tests for `FleetService`
