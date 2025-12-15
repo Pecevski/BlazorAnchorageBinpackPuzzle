@@ -108,7 +108,7 @@ Uses Axis-Aligned Bounding Box (AABB) algorithm:
 
 ## Security & Assumptions
 
-- CORS and authentication assumed to be handled by the ESA API infrastructure - But unfortunatelly it was not and it is causing issue
+- CORS and authentication assumed to be handled by the ESA API infrastructure - **But unfortunatelly it was not and it is causing issue**
 - No persistent storage; state resets on page reload
 - Client-side validation only;
 
