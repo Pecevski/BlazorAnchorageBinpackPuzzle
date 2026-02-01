@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="BlazorAnchorageBinpackPuzzle.Server/BlazorAnchorageBinpackPuzzle.Server.csproj" />
   <Project Path="BlazorAnchorageBinpackPuzzle.Tests/BlazorAnchorageBinpackPuzzle.Tests.csproj" />
   <Project Path="BlazorAnchorageBinpackPuzzle/BlazorAnchorageBinpackPuzzle.csproj" />
 </Solution>

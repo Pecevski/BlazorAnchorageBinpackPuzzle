@@ -356,7 +356,7 @@ public class FleetServiceTests : IAsyncLifetime
                 "SendAsync",
                 ItExpr.Is<HttpRequestMessage>(req =>
                     req.Method == HttpMethod.Get &&
-                    req.RequestUri!.AbsoluteUri.Contains("api/fleets/random")),
+                    req.RequestUri!.AbsoluteUri.Contains("fleets/random")),
                 ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(responseMessage);
 
@@ -370,7 +370,7 @@ public class FleetServiceTests : IAsyncLifetime
             Times.Once(),
             ItExpr.Is<HttpRequestMessage>(req =>
                 req.Method == HttpMethod.Get &&
-                req.RequestUri!.AbsoluteUri.Contains("api/fleets/random")),
+                req.RequestUri!.AbsoluteUri.Contains("fleets/random")),
             ItExpr.IsAny<CancellationToken>());
     }
 
