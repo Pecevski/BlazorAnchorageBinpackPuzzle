@@ -20,10 +20,6 @@ a, .btn-link {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-.content {
-    padding-top: 1.1rem;
-}
-
 .valid.modified:not([type=checkbox]) {
     outline: 1px solid #26b050;
 }
@@ -104,16 +100,9 @@ code {
     color: #c02d76;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-    color: var(--bs-secondary-color);
-    text-align: end;
-}
-
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-    text-align: start;
-}
-
-@import url('bootstrap.min.css');
+/* ============================
+   Anchorage Puzzle Styles
+   ============================ */
 
 :root {
     --vessel-size: 40px;
@@ -129,10 +118,13 @@ body {
     background-color: #f8f9fa;
 }
 
+/* Grid */
+
 .anchorage-container {
     display: flex;
     justify-content: center;
-    padding: 20px;
+    overflow: auto;
+    padding: 10px;
 }
 
 .anchorage-grid {
@@ -145,11 +137,13 @@ body {
 }
 
 .grid-cell {
-    background-color: white;
+    background-color: #f0f4ff;
     min-width: var(--vessel-size);
     min-height: var(--vessel-size);
     border: 1px solid var(--grid-color);
 }
+
+/* Placed vessels on the grid */
 
 .placed-vessel {
     background: linear-gradient(135deg, var(--placed-bg) 0%, #157347 100%);
@@ -160,11 +154,13 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 12px;
+    transition: opacity 0.2s ease, box-shadow 0.2s ease;
+    font-size: 11px;
     font-weight: bold;
     text-align: center;
-    padding: 4px;
+    padding: 2px;
+    overflow: hidden;
+    z-index: 1;
 }
 
 .placed-vessel:hover {
@@ -177,6 +173,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    line-height: 1.2;
 }
 
 .vessel-small-dims {
@@ -184,27 +181,33 @@ body {
     opacity: 0.9;
 }
 
+/* Draggable vessel items in the palette */
+
 .vessel-item {
     background: linear-gradient(135deg, var(--vessel-bg) 0%, #0b5ed7 100%);
     color: var(--vessel-text);
     border: 2px solid #0a58ca;
-    border-radius: 4px;
-    padding: 8px;
+    border-radius: 6px;
+    padding: 8px 12px;
     margin: 4px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    cursor: move;
+    cursor: grab;
     user-select: none;
-    transition: all 0.2s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
     text-align: center;
-    font-size: 11px;
+    min-width: 80px;
+    min-height: 44px;
 }
 
 .vessel-item:hover {
-    opacity: 0.9;
     box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
     transform: translateY(-2px);
+}
+
+.vessel-item:active {
+    cursor: grabbing;
 }
 
 .vessel-item.rotated {
@@ -221,17 +224,19 @@ body {
 
 .vessel-label {
     font-weight: bold;
-    font-size: 10px;
+    font-size: 11px;
 }
 
 .vessel-dims {
-    font-size: 9px;
-    opacity: 0.95;
+    font-size: 10px;
+    opacity: 0.9;
 }
+
+/* Vessel palette panel */
 
 .vessel-palette {
     background-color: white;
-    max-height: 600px;
+    max-height: 70vh;
     overflow-y: auto;
 }
 
@@ -257,6 +262,8 @@ body {
     flex-wrap: wrap;
     gap: 4px;
 }
+
+/* Status panel */
 
 .status-panel {
     background-color: white;
@@ -284,14 +291,10 @@ body {
     font-size: 16px;
 }
 
-@media (max-width: 768px) {
-    .anchorage-grid {
-        grid-template-columns: repeat(auto-fit, var(--vessel-size)) !important;
-    }
+/* Responsive */
 
-    .vessel-item {
-        font-size: 9px;
-        width: 50px;
-        height: 50px;
+@media (max-width: 768px) {
+    .anchorage-container {
+        justify-content: flex-start;
     }
 }

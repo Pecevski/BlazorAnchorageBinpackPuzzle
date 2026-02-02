@@ -1,15 +1,13 @@
 @using BlazorAnchorageBinpackPuzzle.Models
-@using BlazorAnchorageBinpackPuzzle.Services
 @using BlazorAnchorageBinpackPuzzle.Services.Interfaces
 @inject IJSRuntime JS
+@implements IDisposable
 
 <div class="anchorage-container">
     <div class="anchorage-grid"
          @ref="gridElement"
-         style="grid-template-columns: repeat(@AnchorageSize.Width, 40px); grid-template-rows: repeat(@AnchorageSize.Height, 40px);"
-         @ondrop="HandleDrop"
-         @ondragover="HandleDragOver">
-        
+         style="grid-template-columns: repeat(@AnchorageSize.Width, 40px); grid-template-rows: repeat(@AnchorageSize.Height, 40px);">
+
         @foreach (var cell in GenerateGridCells())
         {
             <div class="grid-cell" style="grid-column: @(cell.X + 1); grid-row: @(cell.Y + 1);"></div>
@@ -21,7 +19,7 @@
             <div class="placed-vessel" style="@style" @onclick="() => HandleRemoveVessel(vessel)">
                 <div class="placed-vessel-content">
                     <div>@vessel.ShipDesignation</div>
-                    <div class="vessel-small-dims">@vessel.Dimensions.Width × @vessel.Dimensions.Height</div>
+                    <div class="vessel-small-dims">@vessel.Dimensions.Width &times; @vessel.Dimensions.Height</div>
                 </div>
             </div>
         }
@@ -44,11 +42,40 @@
     [Parameter]
     public required EventCallback<PlacedVessel> OnVesselRemoved { get; set; }
 
-    [Inject]
-    private IAnchoragePlanner Planner { get; set; } = default!;
-
     private ElementReference gridElement;
-    private Dictionary<int, bool> _rotationStates = new();
+    private DotNetObjectReference<AnchorageGrid>? _dotNetRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _dotNetRef = DotNetObjectReference.Create(this);
+                await JS.InvokeVoidAsync("initGridDropZone", gridElement, _dotNetRef);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Grid init error: {ex.Message}");
+            }
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnDropFromJs(int gridX, int gridY, string shipDesignation, bool isRotated)
+    {
+        try
+        {
+            gridX = Math.Max(0, Math.Min(gridX, AnchorageSize.Width - 1));
+            gridY = Math.Max(0, Math.Min(gridY, AnchorageSize.Height - 1));
+
+            await OnVesselPlaced.InvokeAsync((gridX, gridY, shipDesignation, isRotated));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Drop error: {ex.Message}");
+        }
+    }
 
     private IEnumerable<(int X, int Y)> GenerateGridCells()
     {
@@ -61,51 +88,13 @@
         }
     }
 
-    private async Task HandleDragOver(DragEventArgs e)
-    {
-        e.DataTransfer.DropEffect = "move";
-        await Task.CompletedTask;
-    }
-
-    private async Task HandleDrop(DragEventArgs e)
-    {
-        try
-        {
-            // Use JavaScript interop to get drag data
-            var shipDesignation = await JS.InvokeAsync<string>("dragDropInterop.getDragData", e.DataTransfer, "vessel-type");
-            var vesselIndexStr = await JS.InvokeAsync<string>("dragDropInterop.getDragData", e.DataTransfer, "vessel-index");
-            var isRotatedStr = await JS.InvokeAsync<string>("dragDropInterop.getDragData", e.DataTransfer, "is-rotated");
-
-            if (string.IsNullOrEmpty(shipDesignation) || !int.TryParse(vesselIndexStr, out var vesselIndex) ||
-                !bool.TryParse(isRotatedStr, out var isRotated))
-            {
-                return;
-            }
-
-            // Get grid element bounds using JavaScript interop
-            var rect = await JS.InvokeAsync<DotNetRect>("getElementRect", gridElement);
-            int gridX = (int)((e.ClientX - rect.Left) / 40);
-            int gridY = (int)((e.ClientY - rect.Top) / 40);
-
-            gridX = Math.Max(0, Math.Min(gridX, AnchorageSize.Width - 1));
-            gridY = Math.Max(0, Math.Min(gridY, AnchorageSize.Height - 1));
-
-            await OnVesselPlaced.InvokeAsync((gridX, gridY, shipDesignation, isRotated));
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Drop error: {ex.Message}");
-        }
-    }
-
     private async Task HandleRemoveVessel(PlacedVessel vessel)
     {
         await OnVesselRemoved.InvokeAsync(vessel);
     }
 
-    public class DotNetRect
+    public void Dispose()
     {
-        public double Left { get; set; }
-        public double Top { get; set; }
+        _dotNetRef?.Dispose();
     }
 }
