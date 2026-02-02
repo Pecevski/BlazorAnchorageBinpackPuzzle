@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet test:*)",
+      "Bash(dotnet run:*)",
+      "Bash(curl:*)",
+      "Bash(dotnet build:*)",
+      "Bash(del \"C:\\\\Users\\\\Ilija\\\\source\\\\repos\\\\BlazorAnchorageBinpackPuzzle\\\\BlazorAnchorageBinpackPuzzle\\\\State\\\\DragState.cs\")"
+    ]
+  }
+}
