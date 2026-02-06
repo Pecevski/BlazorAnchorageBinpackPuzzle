@@ -32,7 +32,7 @@ Update the HttpClient base address in `Program.cs` if the ESA API URL changes:
 
 dotnet run
 
-Navigate to `https://localhost:5237` (or your configured port).
+Navigate to `https://localhost:5240` (or your configured port).
 
 ## Usage
 
